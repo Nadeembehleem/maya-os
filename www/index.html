@@ -1,0 +1,146 @@
+<!doctype html>
+<html lang="en"><head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#020617">
+<title>Maya OS</title>
+<style>
+:root{--bg:#020617;--pn:#0f172a;--ln:rgba(6,182,212,.3);--cy:#22d3ee;--tx:#e2e8f0;--mu:#64748b;--ok:#34d399;--am:#fcd34d;--pk:#ec4899}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+body{margin:0;background:var(--bg);color:var(--tx);font-family:system-ui,sans-serif;padding:env(safe-area-inset-top) 0 env(safe-area-inset-bottom);min-height:100vh}
+.mono{font-family:ui-monospace,Menlo,monospace}
+header{display:flex;justify-content:space-between;align-items:center;padding:12px 14px;background:#0f172ae6;border-bottom:1px solid var(--ln)}
+h1{font-size:14px;margin:0;letter-spacing:.06em}.sub{font-size:10px;color:var(--cy)}
+.stage{position:relative;height:190px;display:grid;place-items:center;background:linear-gradient(#0f172a,#020617);border-bottom:1px solid var(--ln);overflow:hidden}
+.ring{position:absolute;border-radius:50%;border:1px solid var(--cy);opacity:.35}
+.r1{width:190px;height:190px;animation:sp 20s linear infinite}.r2{width:146px;height:146px;border-style:dashed;animation:sp 15s linear infinite reverse}
+@keyframes sp{to{transform:rotate(360deg)}}@keyframes pu{50%{transform:scale(1.08)}}
+.orb{width:84px;height:84px;border-radius:50%;border:2px solid #22d3ee99;background:radial-gradient(circle at 35% 30%,#67e8f9,#0e7490 45%,#020617 80%);box-shadow:0 0 30px #06b6d470;z-index:2}
+.orb.listening{border-color:var(--ok);box-shadow:0 0 46px var(--ok);animation:pu .9s infinite}
+.orb.thinking{border-color:var(--am);box-shadow:0 0 46px var(--am);animation:sp 1.2s linear infinite}
+.orb.speaking{border-color:var(--pk);box-shadow:0 0 50px var(--pk);animation:pu .5s infinite}
+.st{position:absolute;bottom:8px;font-size:10px;color:#67e8f9;padding:2px 10px;border:1px solid var(--ln);border-radius:6px;background:#020617e6}
+nav{display:grid;grid-template-columns:repeat(4,1fr);border-bottom:1px solid var(--ln)}
+nav button{padding:12px 0;background:none;border:0;border-bottom:2px solid transparent;color:#94a3b8;font:700 11px ui-monospace,monospace}
+nav button.on{color:#67e8f9;border-color:var(--cy);background:#08334430}
+section{display:none;padding:14px}section.on{display:block}
+.chat{display:flex;flex-direction:column;gap:8px;max-height:38vh;overflow-y:auto;margin-bottom:10px}
+.m{padding:9px 12px;border-radius:14px;font-size:13px;line-height:1.45;max-width:90%;white-space:pre-wrap}
+.u{align-self:flex-end;background:#0e3a5c;border:1px solid #22d3ee59}.a{align-self:flex-start;background:var(--pn);border:1px solid var(--ln)}
+.s{align-self:flex-start;font-size:11px;color:var(--ok);font-family:ui-monospace,monospace}
+.row{display:flex;gap:8px;margin-top:8px}
+input,textarea,select{flex:1;min-width:0;padding:11px;border-radius:12px;border:1px solid var(--ln);background:var(--pn);color:var(--tx);font-size:14px;width:100%}
+textarea{font-family:ui-monospace,monospace;font-size:12px;min-height:90px}
+button.p{padding:0 14px;min-height:42px;border-radius:12px;border:0;background:linear-gradient(45deg,#06b6d4,#2563eb);color:#020617;font-weight:800}
+button.g{background:none;border:1px solid var(--ln);color:#67e8f9;border-radius:10px;padding:7px 10px;font-size:12px}
+label{display:block;font-size:11px;color:#94a3b8;margin:12px 0 4px}
+.card{padding:10px;border-radius:12px;background:var(--pn);border:1px solid var(--ln);margin-top:8px;font-size:12px}
+.card b{color:#67e8f9}.card code{color:var(--am);word-break:break-all;display:block;margin:4px 0;font-size:11px}
+.ck{display:flex;align-items:center;gap:8px;margin-top:10px;font-size:13px}.ck input{width:auto;flex:none}
+small{color:var(--mu)}
+</style></head><body>
+<header><div><h1>MAYA OS v8.0</h1><div class="sub mono">Gemini brain • Direct phone control</div></div><div class="mono" style="font-size:10px;color:var(--ok)" id="link">● …</div></header>
+<div class="stage"><div class="ring r1"></div><div class="ring r2"></div><div class="orb" id="orb"></div><div class="st mono" id="st">TAP ORB TO SPEAK</div></div>
+<nav><button class="on" data-t="hud">HUD</button><button data-t="act">Actions</button><button data-t="mem">Memory</button><button data-t="set">Setup</button></nav>
+
+<section id="hud" class="on">
+ <div class="chat" id="chat"><div class="m a">Namaste! Main Maya hu. Orb dabaiye aur boliye — call, message, alarm, torch, apps, navigation, sab.</div></div>
+ <div class="row"><input id="inp" placeholder="Type or tap the orb…" autocomplete="off"><button class="p" id="go">Send</button></div>
+ <label class="ck"><input type="checkbox" id="hands"> Hands-free (keeps listening after each reply)</label>
+</section>
+
+<section id="act">
+ <small>Your own commands. When you say the trigger, Maya runs the steps instantly (even offline). Gemini also knows them by name.</small>
+ <label>Name</label><input id="an" placeholder="Good night"><label>Trigger phrase</label><input id="at" placeholder="good night / sone ja raha hu">
+ <label>Steps (JSON list)</label><textarea id="as">[{"type":"TOGGLE_SETTING","params":{"setting":"dnd","state":true}},{"type":"SET_VOLUME","params":{"level":10}},{"type":"SET_ALARM","params":{"hour":6,"minute":30,"label":"Wake up"}}]</textarea>
+ <div class="row"><button class="p" id="asv" style="flex:1">Save action</button></div>
+ <div id="alist"></div>
+ <div class="card"><b>Step types</b><br><small class="mono">CALL{number} SEND_SMS{number,text} WHATSAPP{number,text} SET_ALARM{hour,minute,label} SET_TIMER{seconds} TORCH{state} SET_VOLUME{level} SET_BRIGHTNESS{level} TOGGLE_SETTING{setting,state} OPEN_APP{app|package} OPEN_URL{url} NAVIGATE{destination} PLAY_MUSIC{query} SEARCH_WEB{query} SEND_EMAIL{to,subject,body} OPEN_CAMERA OPEN_SETTINGS INTENT{action,data,package,extras}</small></div>
+</section>
+
+<section id="mem">
+ <small>Maya remembers these (contacts, nicknames, rules) and uses them for commands. Example: "Mummy = +919876543210". Or say "yaad rakhna …".</small>
+ <div class="row"><input id="mi" placeholder="Mummy = +91…"><button class="p" id="ma">Save</button></div><div id="ml"></div>
+</section>
+
+<section id="set">
+ <label>Maya server URL (Termux: http://127.0.0.1:3000)</label><input id="url">
+ <label>Server token (optional)</label><input id="tok">
+ <label>Language</label><select id="lang"><option value="hi-IN">Hindi / Hinglish</option><option value="en-IN">English (India)</option><option value="en-US">English (US)</option></select>
+ <label>Voice pitch</label><input type="range" id="pitch" min="0.6" max="1.8" step="0.05" value="1.2">
+ <label class="ck"><input type="checkbox" id="conf"> Ask before calls / SMS / WhatsApp / email</label>
+ <div class="row"><button class="p" id="save" style="flex:1">Save</button><button class="p" id="test" style="flex:1">Test server</button></div>
+ <div class="card mono" id="info" style="color:#94a3b8">Native: <span id="nat">…</span></div>
+</section>
+
+<script>
+const $=s=>document.querySelector(s),$$=s=>[...document.querySelectorAll(s)];
+const ST={get(k,d){try{return JSON.parse(localStorage.getItem(k))??d}catch{return d}},set(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch{}}};
+let cfg=Object.assign({url:'http://127.0.0.1:3000',token:'',lang:'hi-IN',pitch:1.2,conf:false,hands:false},ST.get('cfg',{})),mem=ST.get('mem',[]),custom=ST.get('custom',[]),hist=[],busy=false,live=false;
+const Cap=window.Capacitor,native=!!(Cap&&Cap.isNativePlatform&&Cap.isNativePlatform()),Maya=native?Cap.registerPlugin('Maya'):null;
+$('#nat').textContent=native?'Android plugin ready ✔':'browser preview (phone control disabled)';
+$$('nav button').forEach(b=>b.onclick=()=>{$$('nav button').forEach(x=>x.classList.toggle('on',x===b));$$('section').forEach(s=>s.classList.toggle('on',s.id===b.dataset.t))});
+const setS=(s,t)=>{$('#orb').className='orb '+s;$('#st').textContent=t};
+const say=(w,t)=>{const d=document.createElement('div');d.className='m '+w;d.textContent=t;$('#chat').appendChild(d);$('#chat').scrollTop=1e9};
+const note=t=>{const d=document.createElement('div');d.className='s';d.textContent='⚡ '+t;$('#chat').appendChild(d);$('#chat').scrollTop=1e9};
+
+/* voice */
+function listen(){
+ if(native)return Maya.listen({lang:cfg.lang}).then(r=>r.text);
+ const SR=window.SpeechRecognition||window.webkitSpeechRecognition;if(!SR)return Promise.reject(new Error('No speech input here'));
+ return new Promise((ok,no)=>{const r=new SR();r.lang=cfg.lang;r.onresult=e=>ok(e.results[0][0].transcript);r.onerror=e=>no(new Error(e.error));r.onend=()=>ok('');r.start()})}
+function speak(t){if(!t)return Promise.resolve();
+ if(native)return Maya.speak({text:t,lang:cfg.lang,pitch:cfg.pitch,rate:1}).catch(()=>{});
+ return new Promise(ok=>{if(!window.speechSynthesis)return ok();const u=new SpeechSynthesisUtterance(t);u.lang=cfg.lang;u.pitch=cfg.pitch;u.onend=ok;speechSynthesis.speak(u)})}
+
+/* actions */
+async function runStep(a){
+ const t=(a.type||'').toUpperCase(),p=a.params||{};
+ if(t==='RUN_CUSTOM'){const c=custom.find(x=>x.name.toLowerCase()===String(p.name).toLowerCase());if(!c)return note('No custom action "'+p.name+'"');for(const s of c.steps)await runStep(s);return}
+ if(t==='SAVE_MEMORY'){mem.unshift(String(p.note));ST.set('mem',mem);rMem();return note('Saved to memory')}
+ if(t==='ADD_CALENDAR'&&p.startISO)p.start=Date.parse(p.startISO)||0;
+ if(cfg.conf&&['CALL','SEND_SMS','WHATSAPP','SEND_EMAIL'].includes(t)&&!confirm('Maya wants to: '+t+' '+JSON.stringify(p)+'\nAllow?'))return note('Cancelled '+t);
+ if(!native)return note('(preview) '+t+' '+JSON.stringify(p));
+ try{const r=await Maya.execute({type:t,params:p});note((r.ok?'':'✖ ')+r.msg)}catch(e){note('✖ '+(e.message||e))}
+ await new Promise(r=>setTimeout(r,400))}
+
+/* brain */
+async function ask(text){
+ text=text.trim();if(!text||busy)return;busy=true;say('u',text);
+ const low=text.toLowerCase(),c=custom.find(x=>x.trigger&&x.trigger.split('/').some(t=>t.trim()&&low.includes(t.trim().toLowerCase())));
+ if(c){setS('thinking','RUNNING '+c.name.toUpperCase());say('a','Ji, '+c.name+' chala rahi hu.');for(const s of c.steps)await runStep(s);busy=false;return after()}
+ setS('thinking','THINKING…');let out;
+ try{
+  const ctl=new AbortController(),to=setTimeout(()=>ctl.abort(),30000);
+  const r=await fetch(cfg.url.replace(/\/$/,'')+'/api/command',{method:'POST',signal:ctl.signal,headers:{'Content-Type':'application/json','x-maya-token':cfg.token},
+   body:JSON.stringify({prompt:text,history:hist,memory:mem,custom:custom.map(({name,trigger})=>({name,trigger})),device:{platform:native?'android':'browser',lang:cfg.lang}})});
+  clearTimeout(to);const j=typeof r.json==='function'?await r.json():r.data;
+  if(j.error)throw new Error(j.error);out=j;
+ }catch(e){say('a','⚠ Server error: '+(e.message||e)+'\nSetup tab me server URL check kijiye (Termux me server chal raha hona chahiye).');setS('idle','TAP ORB TO SPEAK');busy=false;return}
+ hist.push({role:'user',text},{role:'model',text:out.speech});hist=hist.slice(-12);
+ if(out.speech)say('a',out.speech);
+ setS('speaking','SPEAKING…');const sp=speak(out.speech);
+ for(const a of out.actions)await runStep(a);
+ await sp;busy=false;after()}
+function after(){setS('idle','TAP ORB TO SPEAK');if($('#hands').checked&&!live)micLoop()}
+async function micLoop(){if(busy)return;live=true;setS('listening','LISTENING…');
+ try{const t=await listen();live=false;setS('idle','TAP ORB TO SPEAK');if(t)await ask(t);else if($('#hands').checked)setTimeout(micLoop,600)}
+ catch(e){live=false;setS('idle','TAP ORB TO SPEAK');if(!/stt_error_(7|6)/.test(e.message||''))say('a','Mic: '+(e.message||e));else if($('#hands').checked)setTimeout(micLoop,800)}}
+$('#orb').onclick=micLoop;$('#go').onclick=()=>{const v=$('#inp').value;$('#inp').value='';ask(v)};$('#inp').onkeydown=e=>{if(e.key==='Enter')$('#go').click()};
+$('#hands').checked=cfg.hands;$('#hands').onchange=e=>{cfg.hands=e.target.checked;ST.set('cfg',cfg);if(cfg.hands)micLoop()};
+
+/* custom actions */
+function rAct(){$('#alist').innerHTML='';custom.forEach((c,i)=>{const d=document.createElement('div');d.className='card';d.innerHTML='<b></b> — <small></small><code></code><button class="g">Run</button> <button class="g">Delete</button>';
+ d.querySelector('b').textContent=c.name;d.querySelector('small').textContent='"'+c.trigger+'"';d.querySelector('code').textContent=JSON.stringify(c.steps);
+ const [r,x]=d.querySelectorAll('button');r.onclick=async()=>{for(const s of c.steps)await runStep(s)};x.onclick=()=>{custom.splice(i,1);ST.set('custom',custom);rAct()};$('#alist').appendChild(d)})}
+$('#asv').onclick=()=>{try{const steps=JSON.parse($('#as').value);if(!Array.isArray(steps))throw 0;const n=$('#an').value.trim(),t=$('#at').value.trim();if(!n||!t)return alert('Name and trigger needed');custom.push({name:n,trigger:t,steps});ST.set('custom',custom);rAct();$('#an').value=$('#at').value=''}catch{alert('Steps must be a valid JSON list')}};
+/* memory */
+function rMem(){$('#ml').innerHTML='';mem.forEach((m,i)=>{const d=document.createElement('div');d.className='card';d.innerHTML='<span></span> <button class="g" style="float:right">✕</button>';d.firstChild.textContent=m;d.lastChild.onclick=()=>{mem.splice(i,1);ST.set('mem',mem);rMem()};$('#ml').appendChild(d)})}
+$('#ma').onclick=()=>{const v=$('#mi').value.trim();if(v){mem.unshift(v);ST.set('mem',mem);$('#mi').value='';rMem()}};
+/* setup */
+$('#url').value=cfg.url;$('#tok').value=cfg.token;$('#lang').value=cfg.lang;$('#pitch').value=cfg.pitch;$('#conf').checked=cfg.conf;
+$('#save').onclick=()=>{cfg={...cfg,url:$('#url').value.trim(),token:$('#tok').value.trim(),lang:$('#lang').value,pitch:+$('#pitch').value,conf:$('#conf').checked};ST.set('cfg',cfg);ping()};
+$('#test').onclick=ping;
+async function ping(){$('#link').textContent='● …';try{const r=await fetch(cfg.url.replace(/\/$/,'')+'/health'),j=typeof r.json==='function'?await r.json():r.data;$('#link').textContent=j.keySet?'● BRAIN ONLINE':'● NO API KEY';$('#link').style.color=j.keySet?'var(--ok)':'var(--am)';$('#info').innerHTML='Native: '+$('#nat').textContent+'<br>Server: '+j.model+(j.keySet?' ✔':' (set GEMINI_API_KEY)')}catch(e){$('#link').textContent='● OFFLINE';$('#link').style.color='var(--pk)'}}
+rAct();rMem();ping();
+</script></body></html>

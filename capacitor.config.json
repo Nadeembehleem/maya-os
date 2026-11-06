@@ -1,0 +1,7 @@
+{
+  "appId": "com.maya.os",
+  "appName": "Maya OS",
+  "webDir": "www",
+  "server": { "androidScheme": "http", "cleartext": true },
+  "plugins": { "CapacitorHttp": { "enabled": true } }
+}
